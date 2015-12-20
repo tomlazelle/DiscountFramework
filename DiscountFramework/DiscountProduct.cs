@@ -1,4 +1,4 @@
-﻿namespace DiscountFramework.TestObjects
+﻿namespace DiscountFramework
 {
     public class DiscountProduct
     {

@@ -9,10 +9,11 @@ namespace DiscountFramework.Tests.FakeDomain
         {
             return fixture.Build<CartView>()
                 .Without(x => x.Items)
+                .With(x => x.Tax, .0825m)
                 .Create();
         }
 
-        public static CartItemView CreateItem(this IFixture fixture,int productId,decimal amount = 5, int quantity = 1)
+        public static CartItemView CreateItem(this IFixture fixture, int productId, decimal amount = 5, int quantity = 1)
         {
             return fixture.Build<CartItemView>()
                 .With(x => x.Amount, amount)
@@ -21,5 +22,11 @@ namespace DiscountFramework.Tests.FakeDomain
                 .Create();
         }
 
+        public static decimal TotalPlusTaxMinusDiscount(this CartView cart,decimal discount)
+        {
+            var tax = (cart.SubTotal - discount) * cart.Tax;
+
+            return (cart.SubTotal - discount) + tax ;
+        }
     }
 }

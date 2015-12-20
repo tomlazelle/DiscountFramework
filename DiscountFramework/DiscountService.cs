@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using AutoMapper;
 using DiscountFramework.EnumTypes;
 using DiscountFramework.TestObjects;
@@ -27,8 +28,22 @@ namespace DiscountFramework
                 AdjustProducts();
             }
 
+            if (DiscountType.AssignedToShipping == _discount.Type)
+            {
+                AdjustShippingAmount();
+            }
 
             return _discountCart;
+        }
+
+        private void AdjustShippingAmount()
+        {
+            if (_discount.UsePercentage)
+            {
+                var discount = _discountCart.OriginalShippingAmount*_discount.DiscountPercentage.Value;
+                _discountCart.DiscountedShippingAmount = _discountCart.OriginalShippingAmount - discount;
+            }
+            
         }
 
         private void AdjustProducts()
@@ -36,6 +51,24 @@ namespace DiscountFramework
             if (_discount.DiscountProducts.Any(x => x.Free))
             {
                 AdjustBuyOneGetOne();
+            }
+
+            if (_discount.DiscountProducts.All(x => x.DiscountAmount != null))
+            {
+                AdjustProductTotal();
+            }
+        }
+
+        private void AdjustProductTotal()
+        {
+            foreach (var discountItem in _discountCart.DiscountItems)
+            {
+                var foundItem = _discount.DiscountProducts.FirstOrDefault(x => x.ProductId == discountItem.ProductId);
+                if (foundItem != null)
+                {
+                    discountItem.Discount = foundItem.DiscountAmount.Value;
+                    discountItem.DiscountedAmount = discountItem.Amount - foundItem.DiscountAmount.Value;
+                }
             }
         }
 
@@ -45,17 +78,49 @@ namespace DiscountFramework
             {
                 AdjustDollarsOff();
             }
+
+            if (_discount.UsePercentage)
+            {
+                AdjustPercentageOff();
+            }
+        }
+
+        private void AdjustPercentageOff()
+        {
+            if (_discount.Type == DiscountType.AssignedToOrderTotal)
+            {
+                var discount = _discountCart.OrignalTotal * _discount.DiscountPercentage.Value;
+                _discountCart.Discount = discount;
+            }
         }
 
         private void AdjustBuyOneGetOne()
         {
-            var discountIds = _discount.DiscountProducts.Select(x => x.ProductId).ToArray();
-            var count = _discountCart.DiscountItems.Count(x => discountIds.Contains(x.ProductId));
+            var discountIds = new List<int>();
 
-            if (count == discountIds.Length)
+            //how many items do I need to get my discount
+            foreach (var item in _discount.DiscountProducts.Where(x=>x.Free))
+            {
+                for (int i = 0; i < item.Quantity; i++)
+                {
+                    discountIds.Add(item.ProductId);
+                }
+            }
+
+            var count = 0;
+
+            foreach (var item in _discountCart.DiscountItems.Where(x => discountIds.Contains(x.ProductId)))
+            {
+                for (int i = 0; i < item.Quantity; i++)
+                {
+                    count++;
+                }
+            }
+
+            if (count == discountIds.Count)
             {
 
-                foreach (var discoItem in _discount.DiscountProducts.Where(x=>!x.MustBuy))
+                foreach (var discoItem in _discount.DiscountProducts.Where(x => !x.MustBuy))
                 {
 
                     var items = _discountCart.DiscountItems.Where(x => x.ProductId == discoItem.ProductId);
@@ -67,7 +132,7 @@ namespace DiscountFramework
                             item.DiscountedAmount = 0;
                             item.Discount = item.Amount;
                         }
-                        
+
                     }
 
                     if (discoItem.DiscountAmount.HasValue)
@@ -83,7 +148,7 @@ namespace DiscountFramework
                     {
                         foreach (var item in items)
                         {
-                            item.Discount = item.Amount*discoItem.DiscountPercentage.Value;
+                            item.Discount = item.Amount * discoItem.DiscountPercentage.Value;
                             item.DiscountedAmount = item.Amount - item.Discount;
                         }
                     }
@@ -98,7 +163,6 @@ namespace DiscountFramework
             if (_discount.Type == DiscountType.AssignedToOrderTotal)
             {
                 _discountCart.Discount = _discount.DiscountAmount.Value;
-                _discountCart.DiscountedAmount = _discountCart.OrignalTotal - _discount.DiscountAmount.Value;
             }
         }
     }

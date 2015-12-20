@@ -68,6 +68,8 @@
     <Compile Include="DiscountTests\buy_one_get_one_two_free_different_items_free_test.cs" />
     <Compile Include="DiscountTests\buy_one_get_one_two_free_of_the_same_item_free_test.cs" />
     <Compile Include="DiscountTests\buy_one_get_one_free_test.cs" />
+    <Compile Include="DiscountTests\dollars_off_item_in_cart_test.cs" />
+    <Compile Include="DiscountTests\free_shipping_test.cs" />
     <Compile Include="DiscountTests\percentage_off_order_total_test.cs" />
     <Compile Include="DiscountTests\dollars_off_test.cs" />
     <Compile Include="FakeDomain\CartFactory.cs" />

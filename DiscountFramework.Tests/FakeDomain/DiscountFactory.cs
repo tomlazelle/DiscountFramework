@@ -1,18 +1,39 @@
-﻿using System.Linq;
-using DiscountFramework.EnumTypes;
-using DiscountFramework.TestObjects;
+﻿using DiscountFramework.EnumTypes;
 
 namespace DiscountFramework.Tests.FakeDomain
 {
     public static class TestDiscountFactory
     {
+        public static Discount FreeShippingDiscount()
+        {
+            return new Discount
+            {
+                Type = DiscountType.AssignedToShipping,
+                Limit = DiscountLimit.Unlimited,
+                UsePercentage = true,
+                DiscountPercentage = 1,
+            };
+        }
+
         public static Discount DollarsOffDiscount(decimal dollarsOff)
         {
             return new Discount
             {
                 DiscountAmount = dollarsOff,
                 Type = DiscountType.AssignedToOrderTotal,
-                Limit = DiscountLimit.Unlimited
+                Limit = DiscountLimit.Unlimited,
+                
+            };
+        }
+
+        public static Discount DollarsOffItemDiscount(DiscountProduct[] products)
+        {
+            return new Discount
+            {
+                DiscountAmount = 0,
+                Type = DiscountType.AssignedToProducts,
+                Limit = DiscountLimit.Unlimited,
+                DiscountProducts = products
             };
         }
 
@@ -34,7 +55,8 @@ namespace DiscountFramework.Tests.FakeDomain
                 Type = DiscountType.AssignedToOrderTotal,
                 Limit = DiscountLimit.Unlimited,
                 NTimes = 1,
-                DiscountPercentage = percentageOff
+                DiscountPercentage = percentageOff,
+                UsePercentage = true
             };
         }
     }
