@@ -41,7 +41,7 @@ namespace DiscountFramework.Tests.DiscountTests
 
             var result = discountService.ApplyDiscount(cart, discount);
 
-            result.DiscountItems.FirstOrDefault(x => x.ProductId == 2).DiscountedAmount.ShouldEqual(0);
+            result.Cart.DiscountItems.FirstOrDefault(x => x.ProductId == 2).DiscountedAmount.ShouldEqual(0);
         }
 
     }

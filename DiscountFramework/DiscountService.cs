@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using AutoMapper;
 using DiscountFramework.EnumTypes;
@@ -11,9 +12,15 @@ namespace DiscountFramework
         private Discount _discount;
         private DiscountCart _discountCart;
 
-        public DiscountCart ApplyDiscount(CartView cartView, Discount discount)
+        public DiscountResult ApplyDiscount(CartView cartView, Discount discount)
         {
             _discount = discount;
+
+            if (!IsValidDiscount()) return new DiscountResult
+            {
+                Error = "Invalid Discount",
+                Success = false
+            };
 
             _discountCart = Mapper.Map<CartView, DiscountCart>(cartView);
 
@@ -33,7 +40,20 @@ namespace DiscountFramework
                 AdjustShippingAmount();
             }
 
-            return _discountCart;
+            return new DiscountResult
+            {
+                Cart = _discountCart,
+                Success = true
+            };
+        }
+
+        private bool IsValidDiscount()
+        {
+            if (_discount.StartDate > DateTime.Now) return false;
+
+            if (_discount.EndDate < DateTime.Now) return false;
+
+            return true;
         }
 
         private void AdjustShippingAmount()
@@ -43,7 +63,12 @@ namespace DiscountFramework
                 var discount = _discountCart.OriginalShippingAmount*_discount.DiscountPercentage.Value;
                 _discountCart.DiscountedShippingAmount = _discountCart.OriginalShippingAmount - discount;
             }
-            
+
+            if (!_discount.UsePercentage)
+            {
+                var discount = _discount.DiscountAmount.Value;
+                _discountCart.DiscountedShippingAmount = _discountCart.OriginalShippingAmount - discount;
+            }
         }
 
         private void AdjustProducts()

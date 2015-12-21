@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using AutoMapper;
+﻿using AutoMapper;
 using DiscountFramework.Configuration;
 using DiscountFramework.Tests.Configuration;
 using DiscountFramework.Tests.FakeDomain;
@@ -8,7 +7,7 @@ using Should;
 
 namespace DiscountFramework.Tests.DiscountTests
 {
-    public class free_shipping_test : BaseTest
+    public class dollars_off_shipping:BaseTest
     {
         private IFixture _registry;
 
@@ -20,23 +19,19 @@ namespace DiscountFramework.Tests.DiscountTests
 
         public override void FixtureTeardown()
         {
-
-        }
-
-        public void can_get_free_shipping()
-        {
             var cart = _registry.CreateCart();
+            cart.ShippingAmount = 10;
 
             cart.AddItem(_registry.CreateItem(1));
             cart.AddItem(_registry.CreateItem(2));
 
-            var discount = TestDiscountFactory.FreeShippingDiscount();
+            var discount = TestDiscountFactory.DollarsOffShippingDiscount(5);
 
             var discountService = new DiscountService();
 
             var result = discountService.ApplyDiscount(cart, discount);
 
-            result.Cart.DiscountedShippingAmount.ShouldEqual(0);
+            result.Cart.DiscountedShippingAmount.ShouldEqual(5);
         }
     }
 }

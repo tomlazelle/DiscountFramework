@@ -1,4 +1,4 @@
-﻿using System.Linq;
+﻿using System;
 using AutoMapper;
 using DiscountFramework.Configuration;
 using DiscountFramework.Tests.Configuration;
@@ -8,7 +8,7 @@ using Should;
 
 namespace DiscountFramework.Tests.DiscountTests
 {
-    public class free_shipping_test : BaseTest
+    public class expired_discount_test:BaseTest
     {
         private IFixture _registry;
 
@@ -20,23 +20,23 @@ namespace DiscountFramework.Tests.DiscountTests
 
         public override void FixtureTeardown()
         {
-
+            
         }
 
-        public void can_get_free_shipping()
-        {
+        public void can_not_use_an_expired_discount(){
             var cart = _registry.CreateCart();
 
             cart.AddItem(_registry.CreateItem(1));
             cart.AddItem(_registry.CreateItem(2));
 
-            var discount = TestDiscountFactory.FreeShippingDiscount();
+            var discount = TestDiscountFactory.ExpiredDiscount(DateTime.Now.AddDays(-60), DateTime.Now.AddDays(-30));
 
             var discountService = new DiscountService();
 
             var result = discountService.ApplyDiscount(cart, discount);
 
-            result.Cart.DiscountedShippingAmount.ShouldEqual(0);
+            result.Success.ShouldBeFalse();
+            result.Error.ShouldEqual("Invalid Discount");
         }
     }
 }

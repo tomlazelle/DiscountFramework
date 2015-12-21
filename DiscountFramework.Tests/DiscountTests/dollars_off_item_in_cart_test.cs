@@ -43,8 +43,8 @@ namespace DiscountFramework.Tests.DiscountTests
             var service = new DiscountService();
             var result = service.ApplyDiscount(cart, discount);
 
-            result.DiscountedTotal.ShouldEqual(5 + (5 * cart.Tax));
-            result.DiscountItems.First().DiscountedAmount.ShouldEqual(5);
+            result.Cart.DiscountedTotal.ShouldEqual(5 + (5 * cart.Tax));
+            result.Cart.DiscountItems.First().DiscountedAmount.ShouldEqual(5);
         }
     }
 }

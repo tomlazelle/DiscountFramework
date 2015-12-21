@@ -42,7 +42,7 @@ namespace DiscountFramework.Tests.DiscountTests
 
             var result = discountService.ApplyDiscount(cart, discount);
 
-            result.DiscountItems.Count(x => x.ProductId == 2 && x.DiscountedAmount == 0).ShouldEqual(2);
+            result.Cart.DiscountItems.Count(x => x.ProductId == 2 && x.DiscountedAmount == 0).ShouldEqual(2);
         }
 
     }

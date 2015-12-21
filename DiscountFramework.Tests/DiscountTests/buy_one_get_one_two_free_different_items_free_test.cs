@@ -1,7 +1,6 @@
 ﻿using System.Linq;
 using AutoMapper;
 using DiscountFramework.Configuration;
-using DiscountFramework.TestObjects;
 using DiscountFramework.Tests.Configuration;
 using DiscountFramework.Tests.FakeDomain;
 using Ploeh.AutoFixture;
@@ -21,7 +20,6 @@ namespace DiscountFramework.Tests.DiscountTests
 
         public override void FixtureTeardown()
         {
-
         }
 
         public void can_add_two_items_and_get_one_for_free()
@@ -34,17 +32,25 @@ namespace DiscountFramework.Tests.DiscountTests
 
             var discount = TestDiscountFactory.BOGOFreeDiscount(new[]
             {
-                new DiscountProduct {MustBuy = true,ProductId = 1},
-                new DiscountProduct {Free = true,ProductId = 2},
-                new DiscountProduct {Free = true,ProductId = 3},
+                new DiscountProduct
+                {
+                    MustBuy = true, ProductId = 1
+                },
+                new DiscountProduct
+                {
+                    Free = true, ProductId = 2
+                },
+                new DiscountProduct
+                {
+                    Free = true, ProductId = 3
+                },
             });
 
             var discountService = new DiscountService();
 
             var result = discountService.ApplyDiscount(cart, discount);
 
-            result.DiscountItems.Count(x => (x.ProductId == 2 || x.ProductId == 3) && x.DiscountedAmount == 0).ShouldEqual(2);
+            result.Cart.DiscountItems.Count(x => (x.ProductId == 2 || x.ProductId == 3) && x.DiscountedAmount == 0).ShouldEqual(2);
         }
-
     }
 }

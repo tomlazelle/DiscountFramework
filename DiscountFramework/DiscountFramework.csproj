@@ -47,6 +47,7 @@
     <Compile Include="Configuration\MappingSetup.cs" />
     <Compile Include="DiscountItem.cs" />
     <Compile Include="DiscountCart.cs" />
+    <Compile Include="DiscountResult.cs" />
     <Compile Include="TestObjects\CartItemView.cs" />
     <Compile Include="TestObjects\CartView.cs" />
     <Compile Include="EnumTypes\DiscountLimit.cs" />

@@ -34,7 +34,7 @@ namespace DiscountFramework.Tests.DiscountTests
 
             var result = discountService.ApplyDiscount(cart, discount);
 
-            result.DiscountedTotal.ShouldEqual(cart.TotalPlusTaxMinusDiscount(actualDiscount));
+            result.Cart.DiscountedTotal.ShouldEqual(cart.TotalPlusTaxMinusDiscount(actualDiscount));
         }
 
     }

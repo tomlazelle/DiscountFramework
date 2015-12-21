@@ -1,4 +1,5 @@
-﻿using DiscountFramework.EnumTypes;
+﻿using System;
+using DiscountFramework.EnumTypes;
 
 namespace DiscountFramework.Tests.FakeDomain
 {
@@ -12,8 +13,35 @@ namespace DiscountFramework.Tests.FakeDomain
                 Limit = DiscountLimit.Unlimited,
                 UsePercentage = true,
                 DiscountPercentage = 1,
+                StartDate = DateTime.Now,
+                EndDate = DateTime.Now.AddDays(1)
             };
         }
+        public static Discount DollarsOffShippingDiscount(decimal dollarsOff)
+        {
+            return new Discount
+            {
+                Type = DiscountType.AssignedToShipping,
+                Limit = DiscountLimit.Unlimited,
+                UsePercentage = false,
+                DiscountAmount = dollarsOff,
+                StartDate = DateTime.Now,
+                EndDate = DateTime.Now.AddDays(1)
+            };
+        }
+
+        public static Discount ExpiredDiscount(DateTime startDate,DateTime endDate)
+        {
+            return new Discount
+            {
+                Type = DiscountType.AssignedToShipping,
+                Limit = DiscountLimit.Unlimited,
+                UsePercentage = false,
+                StartDate = startDate,
+                EndDate = endDate
+            };
+        }
+
 
         public static Discount DollarsOffDiscount(decimal dollarsOff)
         {
@@ -22,7 +50,8 @@ namespace DiscountFramework.Tests.FakeDomain
                 DiscountAmount = dollarsOff,
                 Type = DiscountType.AssignedToOrderTotal,
                 Limit = DiscountLimit.Unlimited,
-                
+                StartDate = DateTime.Now,
+                EndDate = DateTime.Now.AddDays(1)
             };
         }
 
@@ -33,7 +62,9 @@ namespace DiscountFramework.Tests.FakeDomain
                 DiscountAmount = 0,
                 Type = DiscountType.AssignedToProducts,
                 Limit = DiscountLimit.Unlimited,
-                DiscountProducts = products
+                DiscountProducts = products,
+                StartDate = DateTime.Now,
+                EndDate = DateTime.Now.AddDays(1)
             };
         }
 
@@ -44,7 +75,9 @@ namespace DiscountFramework.Tests.FakeDomain
                 Type = DiscountType.AssignedToProducts,
                 Limit = DiscountLimit.NTimesOnly,
                 NTimes = 1,
-                DiscountProducts = products
+                DiscountProducts = products,
+                StartDate = DateTime.Now,
+                EndDate = DateTime.Now.AddDays(1)
             };
         }
 
@@ -56,7 +89,9 @@ namespace DiscountFramework.Tests.FakeDomain
                 Limit = DiscountLimit.Unlimited,
                 NTimes = 1,
                 DiscountPercentage = percentageOff,
-                UsePercentage = true
+                UsePercentage = true,
+                StartDate = DateTime.Now,
+                EndDate = DateTime.Now.AddDays(1)
             };
         }
     }
