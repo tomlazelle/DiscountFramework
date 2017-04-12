@@ -1,0 +1,1 @@
+﻿Probably better to use a decorator for each discount case
