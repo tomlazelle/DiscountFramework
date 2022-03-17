@@ -1,0 +1,11 @@
+version: '3'
+
+services:
+  raven:
+       image: ravendb/ravendb:latest
+       ports:
+         - "8080:8080"
+       environment:
+         - RAVEN_Setup_PMODE=None
+         - RAVEN_Setup_Mode=None
+         - RAVEN_License_Eula_Accepted=true

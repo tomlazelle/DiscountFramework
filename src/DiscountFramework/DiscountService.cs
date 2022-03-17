@@ -1,200 +1,201 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using AutoMapper;
-using DiscountFramework.EnumTypes;
-using DiscountFramework.TestObjects;
+using DiscountFramework.Adjustments;
+using DiscountFramework.Containers;
+using DiscountFramework.Services;
 
 namespace DiscountFramework
 {
-    public class DiscountService
+    public class DiscountService:IDiscountService
     {
+        private readonly List<IAdjustment> _adjustments;
         private readonly IMapper _mapper;
-        private Discount _discount;
-        private DiscountCart _discountCart;
 
-        public DiscountService(IMapper mapper)
+        public DiscountService(
+            IEnumerable<IAdjustment> adjustments,
+            IMapper mapper)
         {
+            _adjustments = adjustments.ToList();
             _mapper = mapper;
         }
 
-        public DiscountResult ApplyDiscount(CartView cartView, Discount discount)
+        public DiscountResult ApplyDiscount(Cart cart, Discount discount)
         {
-            _discount = discount;
+            var discountCart = _mapper.Map<DiscountCart>(cart);
 
-            if (!IsValidDiscount()) return new DiscountResult
+            foreach (var adjustment in _adjustments)
             {
-                Error = "Invalid Discount",
-                Success = false
-            };
-
-            _discountCart = _mapper.Map<CartView, DiscountCart>(cartView);
-
-
-            if (DiscountType.AssignedToOrderTotal.Equals(_discount.Type))
-            {
-                AdjustOrderTotal();
+                discountCart = adjustment.Handle(discountCart,
+                                                 discount
+                                                );
             }
+            // if (DiscountType.AssignedToOrderTotal.Equals(_discount.Type))
+            // {
+            //     AdjustOrderTotal();
+            // }
 
-            if (DiscountType.AssignedToProducts.Equals(_discount.Type))
-            {
-                AdjustProducts();
-            }
-
-            if (DiscountType.AssignedToShipping.Equals(_discount.Type))
-            {
-                AdjustShippingAmount();
-            }
+            // if (DiscountType.AssignedToProducts.Equals(_discount.Type))
+            // {
+            //     AdjustProducts();
+            // }
+            //
+            // if (DiscountType.AssignedToShipping.Equals(_discount.Type))
+            // {
+            //     AdjustShippingAmount();
+            // }
 
             return new DiscountResult
             {
-                Cart = _discountCart,
+                Cart = discountCart,
                 Success = true
             };
         }
 
-        private bool IsValidDiscount()
+        // private void AdjustShippingAmount()
+        // {
+        //     if (_discount.UsePercentage)
+        //     {
+        //         var discount = _discountCart.OriginalShippingAmount*_discount.DiscountPercentage.Value;
+        //         _discountCart.DiscountedShippingAmount = _discountCart.OriginalShippingAmount - discount;
+        //     }
+        //
+        //     if (!_discount.UsePercentage)
+        //     {
+        //         var discount = _discount.DiscountAmount.Value;
+        //         _discountCart.DiscountedShippingAmount = _discountCart.OriginalShippingAmount - discount;
+        //     }
+        // }
+
+        // private void AdjustProducts()
+        // {
+        //     if (_discount.DiscountProducts.Any(x => x.Free))
+        //     {
+        //         AdjustBuyOneGetOne();
+        //     }
+        //
+        //     if (_discount.DiscountProducts.All(x => x.DiscountAmount != null))
+        //     {
+        //         AdjustProductTotal();
+        //     }
+        // }
+
+        // private void AdjustProductTotal()
+        // {
+        //     foreach (var discountItem in _discountCart.DiscountItems)
+        //     {
+        //         var foundItem = _discount.DiscountProducts.FirstOrDefault(x => x.SKU == discountItem.SKU);
+        //         if (foundItem != null)
+        //         {
+        //             discountItem.Discount = foundItem.DiscountAmount.Value;
+        //             discountItem.DiscountedAmount = discountItem.Amount - foundItem.DiscountAmount.Value;
+        //         }
+        //     }
+        // }
+
+        // private void AdjustOrderTotal()
+        // {
+        //     if (!_discount.UsePercentage)
+        //     {
+        //         AdjustDollarsOff();
+        //     }
+        //
+        //     if (_discount.UsePercentage)
+        //     {
+        //         AdjustPercentageOff();
+        //     }
+        // }
+
+        // moved to class PercentageOffOrderTotal
+        // private void AdjustPercentageOff()
+        // {
+        //     if (_discount.Type.Equals(DiscountType.AssignedToOrderTotal))
+        //     {
+        //         var discount = _discountCart.OrignalTotal * _discount.DiscountPercentage.Value;
+        //         _discountCart.Discount = discount;
+        //     }
+        // }
+
+        // private void AdjustBuyOneGetOne()
+        // {
+        //     var skus = new List<string>();
+        //
+        //     //how many items do I need to get my discount
+        //     foreach (var item in _discount.DiscountProducts.Where(x=>x.Free))
+        //     {
+        //         for (var i = 0; i < item.Quantity; i++)
+        //         {
+        //             skus.Add(item.SKU);
+        //         }
+        //     }
+        //
+        //     var count = 0;
+        //
+        //     foreach (var item in _discountCart.DiscountItems.Where(x => skus.Contains(x.SKU)))
+        //     {
+        //         for (var i = 0; i < item.Quantity; i++)
+        //         {
+        //             count++;
+        //         }
+        //     }
+        //
+        //     if (count == skus.Count)
+        //     {
+        //
+        //         foreach (var discoItem in _discount.DiscountProducts.Where(x => !x.MustBuy))
+        //         {
+        //
+        //             var items = _discountCart.DiscountItems.Where(x => x.SKU == discoItem.SKU).ToList();
+        //
+        //             if (discoItem.Free)
+        //             {
+        //                 foreach (var item in items)
+        //                 {
+        //                     item.DiscountedAmount = 0;
+        //                     item.Discount = item.Amount;
+        //                 }
+        //
+        //             }
+        //
+        //             if (discoItem.DiscountAmount.HasValue)
+        //             {
+        //                 foreach (var item in items)
+        //                 {
+        //                     item.Discount = discoItem.DiscountAmount.Value;
+        //                     item.DiscountedAmount = item.Amount - discoItem.DiscountAmount.Value;
+        //                 }
+        //             }
+        //
+        //             if (discoItem.DiscountPercentage.HasValue)
+        //             {
+        //                 foreach (var item in items)
+        //                 {
+        //                     item.Discount = item.Amount * discoItem.DiscountPercentage.Value;
+        //                     item.DiscountedAmount = item.Amount - item.Discount;
+        //                 }
+        //             }
+        //         }
+        //     }
+        //
+        // }
+
+        //Moved to DollarsOffOrderTotal class
+        // private void AdjustDollarsOff()
+        // {
+        //     if (_discount.Type.Equals(DiscountType.AssignedToOrderTotal))
+        //     {
+        //         _discountCart.Discount = _discount.DiscountAmount.Value;
+        //     }
+        // }
+
+        public DiscountResult Adjust(Cart messageCart, Discount productDiscount)
         {
-            if (_discount.StartDate > DateTime.Now) return false;
-
-            if (_discount.EndDate < DateTime.Now) return false;
-
-            return true;
+            return ApplyDiscount(messageCart,productDiscount);
         }
 
-        private void AdjustShippingAmount()
+        public DiscountResult Adjust(Cart messageCart, List<Discount> discountProductList)
         {
-            if (_discount.UsePercentage)
-            {
-                var discount = _discountCart.OriginalShippingAmount*_discount.DiscountPercentage.Value;
-                _discountCart.DiscountedShippingAmount = _discountCart.OriginalShippingAmount - discount;
-            }
-
-            if (!_discount.UsePercentage)
-            {
-                var discount = _discount.DiscountAmount.Value;
-                _discountCart.DiscountedShippingAmount = _discountCart.OriginalShippingAmount - discount;
-            }
-        }
-
-        private void AdjustProducts()
-        {
-            if (_discount.DiscountProducts.Any(x => x.Free))
-            {
-                AdjustBuyOneGetOne();
-            }
-
-            if (_discount.DiscountProducts.All(x => x.DiscountAmount != null))
-            {
-                AdjustProductTotal();
-            }
-        }
-
-        private void AdjustProductTotal()
-        {
-            foreach (var discountItem in _discountCart.DiscountItems)
-            {
-                var foundItem = _discount.DiscountProducts.FirstOrDefault(x => x.ProductId == discountItem.ProductId);
-                if (foundItem != null)
-                {
-                    discountItem.Discount = foundItem.DiscountAmount.Value;
-                    discountItem.DiscountedAmount = discountItem.Amount - foundItem.DiscountAmount.Value;
-                }
-            }
-        }
-
-        private void AdjustOrderTotal()
-        {
-            if (!_discount.UsePercentage)
-            {
-                AdjustDollarsOff();
-            }
-
-            if (_discount.UsePercentage)
-            {
-                AdjustPercentageOff();
-            }
-        }
-
-        private void AdjustPercentageOff()
-        {
-            if (_discount.Type.Equals(DiscountType.AssignedToOrderTotal))
-            {
-                var discount = _discountCart.OrignalTotal * _discount.DiscountPercentage.Value;
-                _discountCart.Discount = discount;
-            }
-        }
-
-        private void AdjustBuyOneGetOne()
-        {
-            var discountIds = new List<int>();
-
-            //how many items do I need to get my discount
-            foreach (var item in _discount.DiscountProducts.Where(x=>x.Free))
-            {
-                for (var i = 0; i < item.Quantity; i++)
-                {
-                    discountIds.Add(item.ProductId);
-                }
-            }
-
-            var count = 0;
-
-            foreach (var item in _discountCart.DiscountItems.Where(x => discountIds.Contains(x.ProductId)))
-            {
-                for (var i = 0; i < item.Quantity; i++)
-                {
-                    count++;
-                }
-            }
-
-            if (count == discountIds.Count)
-            {
-
-                foreach (var discoItem in _discount.DiscountProducts.Where(x => !x.MustBuy))
-                {
-
-                    var items = _discountCart.DiscountItems.Where(x => x.ProductId == discoItem.ProductId).ToList();
-
-                    if (discoItem.Free)
-                    {
-                        foreach (var item in items)
-                        {
-                            item.DiscountedAmount = 0;
-                            item.Discount = item.Amount;
-                        }
-
-                    }
-
-                    if (discoItem.DiscountAmount.HasValue)
-                    {
-                        foreach (var item in items)
-                        {
-                            item.Discount = discoItem.DiscountAmount.Value;
-                            item.DiscountedAmount = item.Amount - discoItem.DiscountAmount.Value;
-                        }
-                    }
-
-                    if (discoItem.DiscountPercentage.HasValue)
-                    {
-                        foreach (var item in items)
-                        {
-                            item.Discount = item.Amount * discoItem.DiscountPercentage.Value;
-                            item.DiscountedAmount = item.Amount - item.Discount;
-                        }
-                    }
-                }
-            }
-
-        }
-
-
-        private void AdjustDollarsOff()
-        {
-            if (_discount.Type.Equals(DiscountType.AssignedToOrderTotal))
-            {
-                _discountCart.Discount = _discount.DiscountAmount.Value;
-            }
+            return default;
         }
     }
 }

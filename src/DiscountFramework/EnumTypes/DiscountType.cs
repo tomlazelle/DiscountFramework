@@ -3,10 +3,10 @@
     public class DiscountType:Enumeration
     {
 
-        public static DiscountType AssignedToOrderTotal = new DiscountType(1, "AssignedToOrderTotal");
-        public static DiscountType AssignedToProducts = new DiscountType(2, "AssignedToProducts");
-        public static DiscountType AssignedToShipping = new DiscountType(3, "AssignedToShipping");
-        public static DiscountType AssignedToOrderSubTotal = new DiscountType(4, "AssignedToOrderSubTotal");        
+        public static DiscountType AppliedToOrderTotal = new DiscountType(1, "AssignedToOrderTotal");
+        public static DiscountType AppliedToProducts = new DiscountType(2, "AssignedToProducts");
+        public static DiscountType AppliedToShipping = new DiscountType(3, "AssignedToShipping");
+        public static DiscountType AppliedToOrderSubTotal = new DiscountType(4, "AssignedToOrderSubTotal");        
 
         public DiscountType()
         {

@@ -1,12 +1,16 @@
-﻿namespace DiscountFramework
+﻿using System.Collections.Generic;
+
+namespace DiscountFramework
 {
     public class DiscountItem
     {
-        public int CartItemId { get; set; }
-        public int ProductId { get; set; }
-        public decimal Amount { get; set; }
-        public decimal? DiscountedAmount { get; set; }
-        public decimal? Discount { get; set; }
-        public int Quantity { get; set; }
+        public string CartItemId { get; set; }
+        public decimal? DiscountedAmount { get; set; } = 0;
+        public decimal? Discount { get; set; } = 0;
+        public int Quantity { get; set; } = 0;
+        public decimal Amount { get; set; } = 0;
+        public string SKU { get; set; }
+        public bool Taxable { get; set; }
+        public List<string> KitSKUList { get; set; }
     }
 }

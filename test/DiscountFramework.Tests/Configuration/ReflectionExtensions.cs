@@ -8,7 +8,7 @@ namespace DiscountFramework.Tests.Configuration
         {
             var lifecycleMethod = type.GetMethod(method);
 
-            lifecycleMethod.Invoke(instance, paramObjects);
+            lifecycleMethod?.Invoke(instance, paramObjects);
         }
     }
 }
