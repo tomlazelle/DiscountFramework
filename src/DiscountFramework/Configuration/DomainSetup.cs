@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using CommandQuery.Framing;
-using DiscountFramework.Adjustments;
 using DiscountFramework.Common;
 using DiscountFramework.Services;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,11 +16,9 @@ namespace DiscountFramework.Configuration
 
             Service.AddTransient<IDiscountService, DiscountService>();
 
-            Service.ScanAndAddTransientTypes(
-                                             new[] {typeof(IAdjustment).Assembly},
-                                             new []{typeof(IAdjustment)});
+            Service.AddSingleton<IDiscountVisitor, DiscountVisitor>();
 
-
+           
         }
     }
 }

@@ -1,11 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System.Threading.Tasks;
 using DiscountFramework.Containers;
 
 namespace DiscountFramework.Services
 {
     public interface IDiscountService
     {
-        DiscountResult Adjust(Cart messageCart, Discount discount);
-        DiscountResult Adjust(Cart messageCart, List<Discount> discountList);
+        Task<DiscountResult> ApplyDiscount(Cart cart, string couponCode);
     }
 }

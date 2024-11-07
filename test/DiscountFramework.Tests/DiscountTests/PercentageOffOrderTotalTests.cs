@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using CommandQuery.Framing;
 using DiscountFramework.Containers;
 using DiscountFramework.Handlers;
 using DiscountFramework.Tests.FakeDomain;
@@ -56,7 +55,7 @@ namespace DiscountFramework.Tests.DiscountTests
 
             var response = await Sut.Execute(new DiscountRequest
             {
-                CouponCode = discountName,
+                DiscountCode = discountName,
                 Cart = cart
             });
 
@@ -64,9 +63,9 @@ namespace DiscountFramework.Tests.DiscountTests
             var result = response.Data.Cart;
 
             result.SubTotal.ShouldBe(cartSubTotal);
-            result.SubTotalWithTax.ShouldBe(subTotalWithTax);
+            
 
-            result.TotalWithTaxAndDiscount.ShouldBe(actualDiscountedTotal);
+            result.SubTotal.ShouldBe(actualDiscountedTotal);
         }
 
     }

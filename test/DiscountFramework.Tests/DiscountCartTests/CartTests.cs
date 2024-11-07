@@ -30,7 +30,7 @@ namespace DiscountFramework.Tests.DiscountCartTests
             var subtotalWithTax = subtotal * (1 + Sut.TaxRate);
 
             Sut.SubTotal.ShouldBe(subtotal);
-            Sut.SubTotalWithTax.ShouldBe(subtotalWithTax);
+            
         }
 
         public void total_is_valid_for_multiple_items_discount()
@@ -59,14 +59,14 @@ namespace DiscountFramework.Tests.DiscountCartTests
             var subtotalWithTax = subtotal * (1 + Sut.TaxRate);
             // 22.50
             var discount = subtotal * .75m;
-            Sut.Discount = discount;
+            Sut.DiscountPercentage = discount;
 
             // 7.6650
             var totalMinusDiscount = (subtotalWithTax - discount);
 
             Sut.SubTotal.ShouldBe(subtotal);
-            Sut.SubTotalWithTax.ShouldBe(subtotalWithTax);
-            Sut.TotalWithTaxAndDiscount.ShouldBe(totalMinusDiscount);
+            
+            Sut.SubTotal.ShouldBe(totalMinusDiscount);
         }
 
      

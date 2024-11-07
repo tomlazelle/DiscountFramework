@@ -14,7 +14,8 @@ namespace DiscountFramework.Tests.Configuration
 
         protected TClassUnderTest Sut
         {
-            get { return _sut ??= new Lazy<TClassUnderTest>(() =>
+            get { 
+                return _sut ??= new Lazy<TClassUnderTest>(() =>
                             _serviceProvider != null ? 
                                 _serviceProvider.GetService<TClassUnderTest>() : 
                                 _fixture.Create<TClassUnderTest>()).Value; }

@@ -21,7 +21,7 @@ namespace DiscountFramework.Tests.DiscountTests
             // var result = Sut.ApplyDiscount(cart, discount);
             //
             // result.Success.ShouldBeFalse();
-            // result.Error.ShouldBe("Invalid Discount");
+            // result.Error.ShouldBe("Invalid DiscountPercentage");
         }
     }
 }

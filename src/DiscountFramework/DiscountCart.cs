@@ -1,100 +1,92 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using CommandQuery.Framing;
 
-namespace DiscountFramework
+namespace DiscountFramework;
+
+public class DiscountCart
 {
-    public class DiscountCart
+    public int CartId { get; set; }
+
+    // this is a percentage off the total
+    public decimal DiscountPercentage { get; set; }
+
+    // this is a dollar amount off the total
+    public decimal DiscountDollars { get; set; }
+
+    public string CouponCode { get; set; }
+
+
+    /// <summary>
+    ///     Gets the subtotal of all items with discounts applied.
+    /// </summary>
+    /// <value>
+    ///     Subtotal of all items with discounts applied.
+    /// </value>
+    public decimal SubTotal => GetTotalWithDiscount();
+
+
+    /// <summary>
+    ///     Gets the subtotal of all items with tax applied.
+    /// </summary>
+    /// <value>
+    ///     Total of all items with tax applied.
+    /// </value>
+    public decimal Total => GetTotal();
+
+    public decimal TaxRate { get; set; }
+
+    public List<DiscountItem> DiscountItems { get; set; }
+
+    // Totals
+    private decimal GetTotalWithDiscount()
     {
-        public int CartId { get; set; }
-        public decimal Discount { get; set; }
-
-        public string CouponCode { get; set; }
-
-        public decimal Total => GetTotal();
-        public decimal TotalWithTax => GetTotalWithTax();
-        public decimal TotalWithTaxAndDiscount => GetTotalWithTaxAndDiscount();
-
-        public decimal SubTotal => GetSubTotal();
-        public decimal SubTotalWithTax => GetSubTotalWithTax();
-        public decimal SubTotalWithTaxAndDiscount => GetSubTotalWithTaxAndDiscount();
-
-
-        public decimal ShippingAmount { get; set; }
-        public decimal ShippingAmountWithDiscount { get; set; }
-
-        public decimal TaxRate { get; set; }
-
-        public IEnumerable<DiscountItem> DiscountItems { get; set; }
-
-        // Totals
-        private decimal GetTotalWithTaxAndDiscount()
+        var subTotalWithDiscount = DiscountItems.Sum(x =>
         {
-            return GetSubTotalWithTaxAndDiscount() - Discount;
-        }
+            // Use DiscountedAmount if available; otherwise, default to Amount
+            var itemTotal = (x.Amount - x.Discount) * x.Quantity;
 
-        private decimal GetTotalWithTax()
-        {
-            return GetSubTotalWithTax();
-        }
-        private decimal GetTotal()
-        {
-            return GetSubTotal();
-        }
-
-        // Subtotals
-
-        private decimal GetSubTotalWithTaxAndDiscount()
-        {
-            decimal result = 0;
-            foreach (var x in DiscountItems)
+            if (DiscountPercentage > 0)
             {
-                var itemTotal = (x.DiscountedAmount ?? x.Amount) * x.Quantity;
-                if (x.Taxable)
-                {
-                    result += itemTotal * (1 + TaxRate);
-                }
-                else
-                {
-                    result += itemTotal;
-                }
-
+                var discountAmount = itemTotal * DiscountPercentage;
+                itemTotal -= discountAmount;
             }
 
-            return result;
-        }
+            // Apply tax if the item is taxable
+            return itemTotal;
+        });
 
-        private decimal GetSubTotalWithTax()
+
+        // Apply global cart discount once on the total if intended
+        return subTotalWithDiscount.Value;
+    }
+
+    private decimal GetTotal()
+    {
+        var totalAmount = DiscountItems.Sum(x =>
         {
-            decimal result = 0;
-            foreach (var x in DiscountItems)
+            // Use DiscountedAmount if available; otherwise, default to Amount
+            var itemTotal = x.Amount * x.Quantity;
+
+            if (DiscountPercentage > 0)
             {
-                var itemTotal = x.Amount * x.Quantity;
-                if (x.Taxable)
-                {
-                    result += itemTotal * (1 + TaxRate);
-                }
-                else
-                {
-                    result += itemTotal;
-                }
+                var discountAmount = itemTotal * DiscountPercentage;
+                itemTotal -= discountAmount;
             }
 
-            return result;
-        }
-
-        private decimal GetSubTotal()
-        {
-            decimal result = 0;
-            foreach (var x in DiscountItems)
+            if (x.Discount is > 0)
             {
-                var itemTotal = x.Amount * x.Quantity;
-
-                result += itemTotal;
+                itemTotal -= x.Discount.Value;
             }
 
-            return result;
-        }
+            // Apply tax
+            if (x.Taxable && itemTotal > 0)
+            {
+                return itemTotal * (1 + TaxRate);
+            }
 
+            return itemTotal;
+        });
+
+        return totalAmount;
     }
 }
